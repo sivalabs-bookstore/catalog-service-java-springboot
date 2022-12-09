@@ -1,5 +1,11 @@
 package com.sivalabs.bookstore.catalog.domain;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,21 +17,12 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 @DataMongoTest
 @Testcontainers
 class ProductRepositoryTest {
-    @Autowired
-    private ProductRepository productRepository;
+    @Autowired private ProductRepository productRepository;
 
-    @Container
-    static final MongoDBContainer mongodb = new MongoDBContainer("mongo:4.2");
+    @Container static final MongoDBContainer mongodb = new MongoDBContainer("mongo:4.2");
 
     @DynamicPropertySource
     static void overrideProperties(DynamicPropertyRegistry registry) {
@@ -36,8 +33,11 @@ class ProductRepositoryTest {
     void setUp() {
         productRepository.deleteAll();
 
-        productRepository.save( new Product(null, "P100", "Product 1", "Product 1 desc", null, BigDecimal.TEN));
-        productRepository.save(new Product(null, "P101", "Product 2", "Product 2 desc", null, BigDecimal.valueOf(24)));
+        productRepository.save(
+                new Product(null, "P100", "Product 1", "Product 1 desc", null, BigDecimal.TEN));
+        productRepository.save(
+                new Product(
+                        null, "P101", "Product 2", "Product 2 desc", null, BigDecimal.valueOf(24)));
     }
 
     @Test
@@ -48,15 +48,16 @@ class ProductRepositoryTest {
 
     @Test
     void shouldFailToProductWithDuplicateCode() {
-        var product = new Product(null, "P100", "Product name", "Product desc", null, BigDecimal.TEN);
-        assertThrows(DuplicateKeyException.class, ()-> productRepository.save(product));
+        var product =
+                new Product(null, "P100", "Product name", "Product desc", null, BigDecimal.TEN);
+        assertThrows(DuplicateKeyException.class, () -> productRepository.save(product));
     }
 
     @Test
     void shouldGetProductByCode() {
-        Optional<Product> optionalProduct = productRepository.findByIsbn("P100");
+        Optional<Product> optionalProduct = productRepository.findByCode("P100");
         assertThat(optionalProduct).isNotEmpty();
-        assertThat(optionalProduct.get().getIsbn()).isEqualTo("P100");
+        assertThat(optionalProduct.get().getCode()).isEqualTo("P100");
         assertThat(optionalProduct.get().getName()).isEqualTo("Product 1");
         assertThat(optionalProduct.get().getDescription()).isEqualTo("Product 1 desc");
         assertThat(optionalProduct.get().getPrice()).isEqualTo(BigDecimal.TEN);

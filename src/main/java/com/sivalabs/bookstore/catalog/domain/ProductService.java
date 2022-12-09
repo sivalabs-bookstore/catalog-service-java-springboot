@@ -2,17 +2,16 @@ package com.sivalabs.bookstore.catalog.domain;
 
 import com.sivalabs.bookstore.catalog.clients.promotions.Promotion;
 import com.sivalabs.bookstore.catalog.clients.promotions.PromotionServiceClient;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,18 +30,24 @@ public class ProductService {
         return new PagedResult<>(productsWithDiscount);
     }
 
-    public Optional<ProductModel> getProductByIsbn(String isbn) {
-        return productRepository.findByIsbn(isbn)
-                .map(product -> {
-                    Optional<Promotion> promotion = promotionServiceClient.getPromotion(product.getIsbn());
-                    return productMapper.toModel(product, promotion.orElse(null));
-                });
+    public Optional<ProductModel> getProductByCode(String code) {
+        return productRepository
+                .findByCode(code)
+                .map(
+                        product -> {
+                            Optional<Promotion> promotion =
+                                    promotionServiceClient.getPromotion(product.getCode());
+                            return productMapper.toModel(product, promotion.orElse(null));
+                        });
     }
 
     private Page<ProductModel> applyPromotionDiscount(Page<Product> productsPage) {
-        List<String> isbnList = productsPage.getContent().stream().map(Product::getIsbn).toList();
+        List<String> isbnList = productsPage.getContent().stream().map(Product::getCode).toList();
         List<Promotion> promotions = promotionServiceClient.getPromotions(isbnList);
-        Map<String, Promotion> promotionsMap = promotions.stream().collect(Collectors.toMap(Promotion::getIsbn, promotion -> promotion));
-        return productsPage.map(product -> productMapper.toModel(product, promotionsMap.get(product.getIsbn())));
+        Map<String, Promotion> promotionsMap =
+                promotions.stream()
+                        .collect(Collectors.toMap(Promotion::getCode, promotion -> promotion));
+        return productsPage.map(
+                product -> productMapper.toModel(product, promotionsMap.get(product.getCode())));
     }
 }

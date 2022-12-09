@@ -1,12 +1,26 @@
 package com.sivalabs.bookstore.catalog.domain;
 
+import java.net.URI;
+import java.time.Instant;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.web.ErrorResponseException;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class ProductNotFoundException extends RuntimeException {
+public class ProductNotFoundException extends ErrorResponseException {
 
-    public ProductNotFoundException(String isbn) {
-        super("Product with isbn: " + isbn + " not found");
+    public ProductNotFoundException(String code) {
+        super(
+                HttpStatus.NOT_FOUND,
+                asProblemDetail("Product with code: " + code + " not found"),
+                null);
+    }
+
+    private static ProblemDetail asProblemDetail(String message) {
+        ProblemDetail problemDetail =
+                ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, message);
+        problemDetail.setTitle("Product Not Found");
+        problemDetail.setType(URI.create("https://api.sivalabs-bookstore.com/errors/not-found"));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
     }
 }

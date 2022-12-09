@@ -1,8 +1,8 @@
 package com.sivalabs.bookstore.catalog.api;
 
 import com.sivalabs.bookstore.catalog.domain.PagedResult;
-import com.sivalabs.bookstore.catalog.domain.Product;
 import com.sivalabs.bookstore.catalog.domain.ProductModel;
+import com.sivalabs.bookstore.catalog.domain.ProductNotFoundException;
 import com.sivalabs.bookstore.catalog.domain.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,15 +19,16 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public PagedResult<ProductModel> getProducts(@RequestParam(name = "page", defaultValue = "1") int pageNo) {
+    public PagedResult<ProductModel> getProducts(
+            @RequestParam(name = "page", defaultValue = "1") int pageNo) {
         return productService.getProducts(pageNo);
     }
 
-    @GetMapping("/{isbn}")
-    public ResponseEntity<ProductModel> getProductByIsbn(@PathVariable String isbn) {
-        return productService.getProductByIsbn(isbn)
+    @GetMapping("/{code}")
+    public ResponseEntity<ProductModel> getProductByCode(@PathVariable String code) {
+        return productService
+                .getProductByCode(code)
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ProductNotFoundException(code));
     }
-
 }
