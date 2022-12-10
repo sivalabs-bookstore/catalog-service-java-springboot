@@ -11,6 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Promotion {
-    private String code;
+    private String productCode;
     private BigDecimal discount;
 }

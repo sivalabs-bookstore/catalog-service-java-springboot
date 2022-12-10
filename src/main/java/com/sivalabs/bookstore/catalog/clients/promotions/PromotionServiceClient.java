@@ -20,40 +20,43 @@ public class PromotionServiceClient {
     private final RestTemplate restTemplate;
     private final ApplicationProperties properties;
 
-    public List<Promotion> getPromotions(List<String> isbnList) {
-        log.info("Fetching promotions for isbnList: {}", isbnList);
-        if (isbnList == null || isbnList.isEmpty()) {
+    public List<Promotion> getPromotions(List<String> productCodes) {
+        log.info("Fetching promotions for productCodes: {}", productCodes);
+        if (productCodes == null || productCodes.isEmpty()) {
             return List.of();
         }
         try {
             HttpHeaders headers = new HttpHeaders();
             HttpEntity<?> httpEntity = new HttpEntity<>(headers);
-            String isbnsCsv = String.join(",", isbnList);
-            String url = properties.promotionServiceUrl() + "/api/promotions?isbns=" + isbnsCsv;
+            String productCodesCsv = String.join(",", productCodes);
+            String url =
+                    properties.promotionServiceUrl()
+                            + "/api/promotions?productCodes="
+                            + productCodesCsv;
             ResponseEntity<List<Promotion>> response =
                     restTemplate.exchange(
                             url, HttpMethod.GET, httpEntity, new ParameterizedTypeReference<>() {});
             return response.getBody();
         } catch (RuntimeException e) {
-            log.error("Error while fetching promotion for isbnList: " + isbnList, e);
+            log.error("Error while fetching promotion for productCodes: " + productCodes, e);
             return List.of();
         }
     }
 
-    public Optional<Promotion> getPromotion(String isbn) {
-        log.info("Fetching promotion for isbn: {}", isbn);
-        if (isbn == null || isbn.trim().isEmpty()) {
+    public Optional<Promotion> getPromotion(String productCode) {
+        log.info("Fetching promotion for productCode: {}", productCode);
+        if (productCode == null || productCode.trim().isEmpty()) {
             return Optional.empty();
         }
         try {
             HttpHeaders headers = new HttpHeaders();
             HttpEntity<?> httpEntity = new HttpEntity<>(headers);
-            String url = properties.promotionServiceUrl() + "/api/promotions/" + isbn;
+            String url = properties.promotionServiceUrl() + "/api/promotions/" + productCode;
             ResponseEntity<Promotion> response =
                     restTemplate.exchange(url, HttpMethod.GET, httpEntity, Promotion.class);
             return Optional.ofNullable(response.getBody());
         } catch (RuntimeException e) {
-            log.error("Error while fetching promotion for isbn: " + isbn, e);
+            log.error("Error while fetching promotion for productCode: " + productCode, e);
             return Optional.empty();
         }
     }

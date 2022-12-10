@@ -72,7 +72,7 @@ public abstract class AbstractIntegrationTest {
 
     protected static void mockGetPromotions() {
         mockServerClient
-                .when(request().withMethod("GET").withPath("/api/promotions?isbns=.*"))
+                .when(request().withMethod("GET").withPath("/api/promotions?productCodes=.*"))
                 .respond(
                         response()
                                 .withStatusCode(200)
@@ -84,20 +84,20 @@ public abstract class AbstractIntegrationTest {
                                                 """
                                                 [
                                                     {
-                                                        "code": "P100",
+                                                        "productCode": "P100",
                                                         "discount": 2.5
                                                     },
                                                     {
-                                                        "code": "P101",
+                                                        "productCode": "P101",
                                                         "discount": 1.5
                                                     }
                                                 ]
                                                 """)));
     }
 
-    protected static void mockGetPromotion(String isbn, BigDecimal discount) {
+    protected static void mockGetPromotion(String productCode, BigDecimal discount) {
         mockServerClient
-                .when(request().withMethod("GET").withPath("/api/promotions/" + isbn))
+                .when(request().withMethod("GET").withPath("/api/promotions/" + productCode))
                 .respond(
                         response()
                                 .withStatusCode(200)
@@ -108,10 +108,12 @@ public abstract class AbstractIntegrationTest {
                                         json(
                                                 """
                                                     {
-                                                        "code": "%s",
+                                                        "productCode": "%s",
                                                         "discount": %f
                                                     }
                                                 """
-                                                        .formatted(isbn, discount.doubleValue()))));
+                                                        .formatted(
+                                                                productCode,
+                                                                discount.doubleValue()))));
     }
 }

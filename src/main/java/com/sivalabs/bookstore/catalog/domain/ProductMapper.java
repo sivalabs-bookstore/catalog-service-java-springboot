@@ -9,7 +9,7 @@ public class ProductMapper {
 
     public ProductModel toModel(Product product, Promotion promotion) {
         var discount = BigDecimal.ZERO;
-        if (promotion != null && product.getCode().equals(promotion.getCode())) {
+        if (promotion != null && product.getCode().equals(promotion.getProductCode())) {
             discount = promotion.getDiscount();
         }
         return ProductModel.builder()

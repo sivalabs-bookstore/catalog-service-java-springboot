@@ -42,11 +42,14 @@ public class ProductService {
     }
 
     private Page<ProductModel> applyPromotionDiscount(Page<Product> productsPage) {
-        List<String> isbnList = productsPage.getContent().stream().map(Product::getCode).toList();
-        List<Promotion> promotions = promotionServiceClient.getPromotions(isbnList);
+        List<String> productCodes =
+                productsPage.getContent().stream().map(Product::getCode).toList();
+        List<Promotion> promotions = promotionServiceClient.getPromotions(productCodes);
         Map<String, Promotion> promotionsMap =
                 promotions.stream()
-                        .collect(Collectors.toMap(Promotion::getCode, promotion -> promotion));
+                        .collect(
+                                Collectors.toMap(
+                                        Promotion::getProductCode, promotion -> promotion));
         return productsPage.map(
                 product -> productMapper.toModel(product, promotionsMap.get(product.getCode())));
     }
