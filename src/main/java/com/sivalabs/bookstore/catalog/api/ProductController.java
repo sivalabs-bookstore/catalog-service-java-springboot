@@ -4,7 +4,10 @@ import com.sivalabs.bookstore.catalog.domain.PagedResult;
 import com.sivalabs.bookstore.catalog.domain.ProductModel;
 import com.sivalabs.bookstore.catalog.domain.ProductNotFoundException;
 import com.sivalabs.bookstore.catalog.domain.ProductService;
+
 import lombok.RequiredArgsConstructor;
+
+import java.util.ArrayList;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +40,9 @@ public class ProductController {
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
-    public void searchProducts(@RequestParam(name = "query")String query) {
-        //do nothing for now
-        //TODO: do seach
+    public PagedResult<ProductModel> searchProducts(@RequestParam(name = "query")String query) {
+        //TODO: do a valid search from product service
+        return new PagedResult<ProductModel>(new ArrayList<ProductModel>(),0,1,1, true, true, false, false);
+
     }
 }
