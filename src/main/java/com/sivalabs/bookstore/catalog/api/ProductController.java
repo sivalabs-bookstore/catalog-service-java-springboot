@@ -4,7 +4,6 @@ import com.sivalabs.bookstore.catalog.domain.PagedResult;
 import com.sivalabs.bookstore.catalog.domain.ProductModel;
 import com.sivalabs.bookstore.catalog.domain.ProductNotFoundException;
 import com.sivalabs.bookstore.catalog.domain.ProductService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,9 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/products")
-@RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     @GetMapping
     public PagedResult<ProductModel> getProducts(

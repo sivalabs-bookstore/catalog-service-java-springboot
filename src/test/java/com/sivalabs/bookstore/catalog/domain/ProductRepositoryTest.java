@@ -34,10 +34,23 @@ class ProductRepositoryTest {
         productRepository.deleteAll();
 
         productRepository.save(
-                new Product(null, "P100", "Product 1", "Product 1 desc", null, BigDecimal.TEN));
+                new Product(
+                        null,
+                        "P100",
+                        "Product 1",
+                        "Product 1 desc",
+                        null,
+                        BigDecimal.TEN,
+                        BigDecimal.valueOf(2.5)));
         productRepository.save(
                 new Product(
-                        null, "P101", "Product 2", "Product 2 desc", null, BigDecimal.valueOf(24)));
+                        null,
+                        "P101",
+                        "Product 2",
+                        "Product 2 desc",
+                        null,
+                        BigDecimal.valueOf(24),
+                        BigDecimal.ZERO));
     }
 
     @Test
@@ -47,9 +60,16 @@ class ProductRepositoryTest {
     }
 
     @Test
-    void shouldFailToProductWithDuplicateCode() {
+    void shouldFailToSaveProductWithDuplicateCode() {
         var product =
-                new Product(null, "P100", "Product name", "Product desc", null, BigDecimal.TEN);
+                new Product(
+                        null,
+                        "P100",
+                        "Product name",
+                        "Product desc",
+                        null,
+                        BigDecimal.TEN,
+                        BigDecimal.ZERO);
         assertThrows(DuplicateKeyException.class, () -> productRepository.save(product));
     }
 
@@ -61,5 +81,6 @@ class ProductRepositoryTest {
         assertThat(optionalProduct.get().getName()).isEqualTo("Product 1");
         assertThat(optionalProduct.get().getDescription()).isEqualTo("Product 1 desc");
         assertThat(optionalProduct.get().getPrice()).isEqualTo(BigDecimal.TEN);
+        assertThat(optionalProduct.get().getDiscount()).isEqualTo(BigDecimal.valueOf(2.5));
     }
 }

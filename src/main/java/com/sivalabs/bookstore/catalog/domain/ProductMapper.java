@@ -1,26 +1,24 @@
 package com.sivalabs.bookstore.catalog.domain;
 
-import com.sivalabs.bookstore.catalog.clients.promotions.Promotion;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProductMapper {
 
-    public ProductModel toModel(Product product, Promotion promotion) {
+    public ProductModel toModel(Product product) {
         var discount = BigDecimal.ZERO;
-        if (promotion != null && product.getCode().equals(promotion.getProductCode())) {
-            discount = promotion.getDiscount();
+        if (product.getDiscount() != null) {
+            discount = product.getDiscount();
         }
-        return ProductModel.builder()
-                .id(product.getId())
-                .code(product.getCode())
-                .name(product.getName())
-                .description(product.getDescription())
-                .imageUrl(product.getImageUrl())
-                .price(product.getPrice())
-                .discount(discount)
-                .salePrice(product.getPrice().subtract(discount))
-                .build();
+        return new ProductModel(
+                product.getId(),
+                product.getCode(),
+                product.getName(),
+                product.getDescription(),
+                product.getImageUrl(),
+                product.getPrice(),
+                discount,
+                product.getPrice().subtract(discount));
     }
 }
