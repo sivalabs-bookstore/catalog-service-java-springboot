@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "products")
@@ -17,8 +18,10 @@ public class Product {
     private String code;
 
     @NotEmpty(message = "Product name must not be null/empty")
+    @TextIndexed
     private String name;
 
+    @TextIndexed
     private String description;
 
     private String imageUrl;

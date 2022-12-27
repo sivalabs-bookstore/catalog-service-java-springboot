@@ -5,7 +5,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Term;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
+
+import jakarta.websocket.Decoder.Text;
 
 @Service
 public class ProductService {
@@ -29,5 +33,17 @@ public class ProductService {
 
     public Optional<ProductModel> getProductByCode(String code) {
         return productRepository.findByCode(code).map(productMapper::toModel);
+    }
+
+    public Page<Product> searchProductsByCriteria(String searchCriteria, int page) {
+        return productRepository.findAllBy(textCriteriaMatching(searchCriteria), pageableOf(page));
+    }
+
+    private TextCriteria textCriteriaMatching (String searchCriteria){
+        return new TextCriteria().matching (searchCriteria);
+    }
+
+    private Pageable pageableOf (int page){
+        return Pageable.ofSize(page);
     }
 }
