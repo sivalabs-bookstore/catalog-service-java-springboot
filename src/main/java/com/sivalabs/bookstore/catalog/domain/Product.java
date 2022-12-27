@@ -21,8 +21,7 @@ public class Product {
     @TextIndexed
     private String name;
 
-    @TextIndexed
-    private String description;
+    @TextIndexed private String description;
 
     private String imageUrl;
 

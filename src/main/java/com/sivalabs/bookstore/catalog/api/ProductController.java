@@ -4,9 +4,6 @@ import com.sivalabs.bookstore.catalog.domain.PagedResult;
 import com.sivalabs.bookstore.catalog.domain.ProductModel;
 import com.sivalabs.bookstore.catalog.domain.ProductNotFoundException;
 import com.sivalabs.bookstore.catalog.domain.ProductService;
-
-import java.util.ArrayList;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,9 +38,9 @@ public class ProductController {
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
-    public PagedResult<ProductModel> searchProducts(@RequestParam(name = "query")String query) {
-        //TODO: do a valid search from product service
-        return new PagedResult<ProductModel>(new ArrayList<ProductModel>(),0,1,1, true, true, false, false);
-
+    public PagedResult<ProductModel> searchProducts(
+            @RequestParam(name = "query") String query,
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page) {
+        return productService.searchProductsByCriteria(query, page);
     }
 }

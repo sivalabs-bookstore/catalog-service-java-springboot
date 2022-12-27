@@ -5,11 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.Term;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
-
-import jakarta.websocket.Decoder.Text;
 
 @Service
 public class ProductService {
@@ -24,26 +21,37 @@ public class ProductService {
     }
 
     public PagedResult<ProductModel> getProducts(int pageNo) {
-        int page = pageNo <= 1 ? 0 : pageNo - 1;
+        int page = getRepositoryPageNo(pageNo);
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.Direction.ASC, "name");
         Page<ProductModel> productsPage =
                 productRepository.findAll(pageable).map(productMapper::toModel);
         return new PagedResult<>(productsPage);
     }
 
+    private int getRepositoryPageNo(int pageNo) {
+        int repositoryPage = pageNo <= 1 ? 0 : pageNo - 1;
+        return repositoryPage;
+    }
+
     public Optional<ProductModel> getProductByCode(String code) {
         return productRepository.findByCode(code).map(productMapper::toModel);
     }
 
-    public Page<Product> searchProductsByCriteria(String searchCriteria, int page) {
-        return productRepository.findAllBy(textCriteriaMatching(searchCriteria), pageableOf(page));
+    public PagedResult<ProductModel> searchProductsByCriteria(String searchCriteria, int page) {
+        Page<ProductModel> productPage =
+                productRepository
+                        .findAllBy(
+                                textCriteriaMatching(searchCriteria),
+                                pageableOf(getRepositoryPageNo(page)))
+                        .map(productMapper::toModel);
+        return PagedResult.fromPage(productPage);
     }
 
-    private TextCriteria textCriteriaMatching (String searchCriteria){
-        return new TextCriteria().matching (searchCriteria);
+    private TextCriteria textCriteriaMatching(String searchCriteria) {
+        return new TextCriteria().matchingPhrase(searchCriteria);
     }
 
-    private Pageable pageableOf (int page){
-        return Pageable.ofSize(page);
+    private Pageable pageableOf(int page) {
+        return PageRequest.of(page, PAGE_SIZE);
     }
 }

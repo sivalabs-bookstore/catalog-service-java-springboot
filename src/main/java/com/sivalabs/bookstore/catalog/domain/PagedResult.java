@@ -22,6 +22,7 @@ public class PagedResult<T> {
     @JsonProperty("hasPrevious")
     private boolean hasPrevious;
 
+    // TODO: this can be made private constructor in favor of factory method `fromPage`
     public PagedResult(Page<T> page) {
         this.setData(page.getContent());
         this.setTotalElements(page.getTotalElements());
@@ -31,6 +32,15 @@ public class PagedResult<T> {
         this.setLast(page.isLast());
         this.setHasNext(page.hasNext());
         this.setHasPrevious(page.hasPrevious());
+    }
+
+    /**
+     * Convinience method to return an instance of PagedResult
+     *
+     * @param page
+     */
+    public static <T> PagedResult<T> fromPage(Page<T> page) {
+        return new PagedResult<>(page);
     }
 
     public PagedResult(
