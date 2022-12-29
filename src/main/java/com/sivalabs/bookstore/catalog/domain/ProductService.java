@@ -29,8 +29,7 @@ public class ProductService {
     }
 
     private int getRepositoryPageNo(int pageNo) {
-        int repositoryPage = pageNo <= 1 ? 0 : pageNo - 1;
-        return repositoryPage;
+        return pageNo <= 1 ? 0 : pageNo - 1;
     }
 
     public Optional<ProductModel> getProductByCode(String code) {
@@ -42,7 +41,7 @@ public class ProductService {
                 productRepository
                         .findAllBy(
                                 textCriteriaMatching(searchCriteria),
-                                pageableOf(getRepositoryPageNo(page)))
+                                pageableSortOf(getRepositoryPageNo(page)))
                         .map(productMapper::toModel);
         return PagedResult.fromPage(productPage);
     }
@@ -51,7 +50,7 @@ public class ProductService {
         return new TextCriteria().matchingPhrase(searchCriteria);
     }
 
-    private Pageable pageableOf(int page) {
-        return PageRequest.of(page, PAGE_SIZE);
+    private Pageable pageableSortOf(int page) {
+        return PageRequest.of(page, PAGE_SIZE, Sort.Direction.ASC, "name");
     }
 }

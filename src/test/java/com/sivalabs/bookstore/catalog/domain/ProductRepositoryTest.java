@@ -3,6 +3,7 @@ package com.sivalabs.bookstore.catalog.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.sivalabs.bookstore.catalog.common.TestHelper;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -123,5 +125,19 @@ class ProductRepositoryTest {
                                 .filter(product -> product.getDescription().contains("desc"))
                                 .count())
                 .isEqualTo(2);
+    }
+
+    @Test
+    void shouldReturnSortedResultForMatchesInSearch() {
+        productRepository.saveAll(TestHelper.sortableProducts());
+
+        Page<Product> actualResult =
+                productRepository.findAllBy(
+                        new TextCriteria().matchingPhrase("Dog"),
+                        PageRequest.of(0, 20, Sort.Direction.ASC, "name"));
+        assertThat(actualResult).isNotNull();
+        assertThat(actualResult.getTotalElements()).isEqualTo(2);
+        assertThat(actualResult.getContent().get(0).getName()).isEqualTo("A Dog with A Ball");
+        assertThat(actualResult.getContent().get(1).getName()).isEqualTo("Dog");
     }
 }
