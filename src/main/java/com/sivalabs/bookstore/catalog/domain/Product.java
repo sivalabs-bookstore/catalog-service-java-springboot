@@ -29,6 +29,8 @@ public class Product {
 
     private BigDecimal discount;
 
+    private boolean deleted = Boolean.FALSE;
+
     public Product() {}
 
     public Product(
@@ -76,6 +78,10 @@ public class Product {
         return this.discount;
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
@@ -102,5 +108,9 @@ public class Product {
 
     public void setDiscount(BigDecimal discount) {
         this.discount = discount;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }
