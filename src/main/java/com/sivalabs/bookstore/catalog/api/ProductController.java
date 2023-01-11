@@ -33,4 +33,11 @@ public class ProductController {
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ProductNotFoundException(code));
     }
+
+    @GetMapping("/search")
+    public PagedResult<ProductModel> searchProducts(
+            @RequestParam(name = "query") String query,
+            @RequestParam(required = false, defaultValue = "1", name = "page") int page) {
+        return productService.searchProductsByCriteria(query, page);
+    }
 }

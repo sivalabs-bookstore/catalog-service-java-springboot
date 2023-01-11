@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import com.sivalabs.bookstore.catalog.common.AbstractIntegrationTest;
+import com.sivalabs.bookstore.catalog.common.TestHelper;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
@@ -54,5 +55,39 @@ class ProductControllerTest extends AbstractIntegrationTest {
                 .body("status", is(404))
                 .body("title", is("Product Not Found"))
                 .body("detail", is("Product with code: " + code + " not found"));
+    }
+
+    @Test
+    void shouldReturnNoResult_WhenNoSearchMatchExists() {
+        given().contentType(ContentType.JSON)
+                .when()
+                .get(TestHelper.buildSearchEndpoint("gibberish"))
+                .then()
+                .statusCode(200)
+                .body("data", hasSize(0))
+                .body("totalElements", is(0))
+                .body("pageNumber", is(1))
+                .body("totalPages", is(0))
+                .body("isFirst", is(true))
+                .body("isLast", is(true))
+                .body("hasNext", is(false))
+                .body("hasPrevious", is(false));
+    }
+
+    @Test
+    void shouldReturnResult_WhenSearchMatchExists() {
+        given().contentType(ContentType.JSON)
+                .when()
+                .get(TestHelper.buildSearchEndpoint("Product 2"))
+                .then()
+                .statusCode(200)
+                .body("data", hasSize(1))
+                .body("totalElements", is(1))
+                .body("pageNumber", is(1))
+                .body("totalPages", is(1))
+                .body("isFirst", is(true))
+                .body("isLast", is(true))
+                .body("hasNext", is(false))
+                .body("hasPrevious", is(false));
     }
 }
