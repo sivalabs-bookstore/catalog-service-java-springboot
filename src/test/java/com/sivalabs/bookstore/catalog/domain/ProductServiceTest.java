@@ -1,12 +1,15 @@
 package com.sivalabs.bookstore.catalog.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.sivalabs.bookstore.catalog.common.TestHelper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -16,6 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 
+import java.math.BigDecimal;
+import java.util.Optional;
 public class ProductServiceTest {
 
     @InjectMocks private ProductService productService;
@@ -76,5 +81,42 @@ public class ProductServiceTest {
 
         verify(productRepository, times(1)).findAllBy(any(TextCriteria.class), any(Pageable.class));
         verify(productMapper, times(2)).toModel(any(Product.class));
+    }
+
+    @Test
+    public void testDeleteProduct_whenProductExists_shouldReturnDeletedProduct() {
+        String code = "P109";
+        Product product = createProduct(code);
+        when(productRepository.findByCode(code)).thenReturn(Optional.of(product));
+        when(productRepository.save(product)).thenReturn(Optional.of(product).get());
+
+
+        Optional<Product> deletedProduct = productService.deleteProduct(code);
+
+        assertTrue(deletedProduct.isPresent());
+        assertEquals(code, deletedProduct.get().getCode());
+        assertTrue(deletedProduct.get().isDeleted());
+    }
+
+    @Test
+    public void testDeleteProduct_whenProductDoesNotExist_shouldThrowProductNotFoundException() {
+        String code = "P1090";
+        when(productRepository.findByCode(code)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ProductNotFoundException.class, () -> {
+            productService.deleteProduct(code);
+        });
+    }
+
+    private Product createProduct(String code){
+        return
+                new Product(
+                        null,
+                        code,
+                        "The Little Prince",
+                        "Moral allegory and spiritual autobiography, The Little Prince is the most translated book in the French language.",
+                        "https://images.gr-assets.com/books/1367545443l/157993.jpg",
+                        new BigDecimal("16.50"),
+                        BigDecimal.ZERO);
     }
 }
