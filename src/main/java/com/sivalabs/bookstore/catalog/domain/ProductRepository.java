@@ -10,4 +10,7 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     Optional<Product> findByCode(String code);
 
     Page<Product> findAllBy(TextCriteria searchCriteria, Pageable page);
+
+    boolean existsProductByCode(String code);
+
 }

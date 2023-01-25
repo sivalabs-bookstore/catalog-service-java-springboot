@@ -1,14 +1,21 @@
 package com.sivalabs.bookstore.catalog.api;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.config.JsonConfig.jsonConfig;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import com.sivalabs.bookstore.catalog.common.AbstractIntegrationTest;
 import com.sivalabs.bookstore.catalog.common.TestHelper;
+import com.sivalabs.bookstore.catalog.domain.CreateProductModel;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.path.json.config.JsonPathConfig;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
 
 class ProductControllerTest extends AbstractIntegrationTest {
 
@@ -89,5 +96,69 @@ class ProductControllerTest extends AbstractIntegrationTest {
                 .body("isLast", is(true))
                 .body("hasNext", is(false))
                 .body("hasPrevious", is(false));
+    }
+
+    @Test
+    void shouldCreateNewProduct_WhenValidDetailsProvided() {
+        CreateProductModel createProductModel = new CreateProductModel("P200",
+                "A Dog with A Ball",
+                "Awesome read about a dog with super ball",
+                null,
+                new BigDecimal(10).stripTrailingZeros());
+
+        RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL));
+
+        given().contentType(ContentType.JSON)
+                .body(createProductModel)
+                .when()
+                .post(TestHelper.CREATE_PRODUCT_ENDPOINT)
+                .then()
+                .statusCode(201)
+                .body("$", Matchers.hasKey("id"))
+                .body("code", is(createProductModel.code()))
+                .body("name", is(createProductModel.name()))
+                .body("description", is(createProductModel.description()))
+                .body("imageUrl", is(createProductModel.imageUrl()))
+                .body("price", is(createProductModel.price()));
+
+    }
+
+    @Test
+    void shouldReturnValidationError_WhenInvalidDetailsProvided() {
+        CreateProductModel missingName = new CreateProductModel("P200",
+                null,
+                "Awesome read about a dog with super ball",
+                null,
+                BigDecimal.TEN);
+
+        given().contentType(ContentType.JSON)
+                .body(missingName)
+                .when()
+                .post(TestHelper.CREATE_PRODUCT_ENDPOINT)
+                .then()
+                .statusCode(400)
+                .body("status", is(400))
+                .body("title", is("Invalid Request"))
+                .body("detail", is("'name' must not be null"));
+    }
+
+    @Test
+    void shouldReturnProductExistsError_WhenDuplicateProductCodeSupplied() {
+        CreateProductModel duplicateProduct = new CreateProductModel("P100",
+                "Product 1",
+                "Product 1 desc",
+                null,
+                BigDecimal.TEN);
+
+        given().contentType(ContentType.JSON)
+                .body(duplicateProduct)
+                .when()
+                .post(TestHelper.CREATE_PRODUCT_ENDPOINT)
+                .then()
+                .log().all()
+                .statusCode(400)
+                .body("status", is(400))
+                .body("title", is("Product already exist"))
+                .body("detail", is("Product with code '" + duplicateProduct.code() + "' already exist"));
     }
 }

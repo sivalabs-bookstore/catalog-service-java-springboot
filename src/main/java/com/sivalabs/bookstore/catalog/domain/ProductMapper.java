@@ -21,4 +21,14 @@ public class ProductMapper {
                 discount,
                 product.getPrice().subtract(discount));
     }
+
+    public Product fromCreateProductModel(CreateProductModel createProductModel){
+        return new Product(null,
+                createProductModel.code(),
+                createProductModel.name(),
+                createProductModel.description(),
+                createProductModel.imageUrl(),
+                createProductModel.price(),
+                BigDecimal.ZERO);
+    }
 }

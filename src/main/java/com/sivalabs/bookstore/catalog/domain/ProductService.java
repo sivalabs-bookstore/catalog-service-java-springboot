@@ -53,4 +53,14 @@ public class ProductService {
     private Pageable pageableSortOf(int page) {
         return PageRequest.of(page, PAGE_SIZE, Sort.Direction.ASC, "name");
     }
+
+    public ProductModel createProduct(CreateProductModel createProductModel) {
+        boolean existsProductByCode = productRepository.existsProductByCode(createProductModel.code());
+        if (existsProductByCode){
+            throw new ProductAlreadyExistsException(createProductModel.code());
+        }
+        Product product = productMapper.fromCreateProductModel(createProductModel);
+        Product savedProduct = productRepository.save(product);
+        return productMapper.toModel(savedProduct);
+    }
 }
