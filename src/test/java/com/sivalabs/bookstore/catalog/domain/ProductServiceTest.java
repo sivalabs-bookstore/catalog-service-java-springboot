@@ -91,7 +91,9 @@ public class ProductServiceTest {
         when(productRepository.save(product)).thenReturn(Optional.of(product).get());
 
 
-        Optional<Product> deletedProduct = productService.deleteProduct(code);
+        productService.deleteProduct(code);
+
+        Optional<Product> deletedProduct = productRepository.findByCode(code);
 
         assertTrue(deletedProduct.isPresent());
         assertEquals(code, deletedProduct.get().getCode());

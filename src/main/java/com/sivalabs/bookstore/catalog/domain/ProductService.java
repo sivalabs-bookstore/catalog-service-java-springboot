@@ -54,11 +54,11 @@ public class ProductService {
         return PageRequest.of(page, PAGE_SIZE, Sort.Direction.ASC, "name");
     }
 
-    public Optional<Product> deleteProduct(String code) {
+    public void deleteProduct(String code) {
         Optional<Product> product = productRepository.findByCode(code);
         if (product.isPresent()) {
             product.get().setDeleted(true);
-            return Optional.of(productRepository.save(product.get()));
+            productRepository.save(product.get());
         } else {
             throw new ProductNotFoundException(code);
         }
