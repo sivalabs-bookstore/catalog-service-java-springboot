@@ -55,12 +55,8 @@ public class ProductService {
     }
 
     public void deleteProduct(String code) {
-        Optional<Product> product = productRepository.findByCode(code);
-        if (product.isPresent()) {
-            product.get().setDeleted(true);
-            productRepository.save(product.get());
-        } else {
-            throw new ProductNotFoundException(code);
-        }
+        Product product = productRepository.findByCode(code).orElseThrow(()-> new ProductNotFoundException(code));
+        product.setDeleted(true);
+        productRepository.save(product);
     }
 }
