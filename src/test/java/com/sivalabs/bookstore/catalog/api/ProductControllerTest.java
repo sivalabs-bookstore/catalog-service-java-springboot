@@ -139,6 +139,7 @@ class ProductControllerTest extends AbstractIntegrationTest {
                 .statusCode(400)
                 .body("status", is(400))
                 .body("title", is("Invalid Request"))
+                .body("errorCategory", is("Validation"))
                 .body("detail", is("'name' must not be null"));
     }
 

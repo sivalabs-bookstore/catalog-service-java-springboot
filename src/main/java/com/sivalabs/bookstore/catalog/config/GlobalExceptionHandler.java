@@ -29,6 +29,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         problemDetail.setTitle("Invalid Request");
         problemDetail.setType(URI.create("https://api.bookmarks.com/errors/bad-request"));
         problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("errorCategory", "Validation");
 
         return ResponseEntity.badRequest().body(problemDetail);
     }
