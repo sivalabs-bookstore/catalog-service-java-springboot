@@ -53,4 +53,10 @@ public class ProductService {
     private Pageable pageableSortOf(int page) {
         return PageRequest.of(page, PAGE_SIZE, Sort.Direction.ASC, "name");
     }
+
+    public void deleteProduct(String code) {
+        Product product = productRepository.findByCode(code).orElseThrow(()-> new ProductNotFoundException(code));
+        product.setDeleted(true);
+        productRepository.save(product);
+    }
 }
