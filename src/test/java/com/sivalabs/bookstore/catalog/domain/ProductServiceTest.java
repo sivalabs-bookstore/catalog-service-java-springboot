@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.sivalabs.bookstore.catalog.common.TestHelper;
+import java.math.BigDecimal;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,8 +21,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 
-import java.math.BigDecimal;
-import java.util.Optional;
 public class ProductServiceTest {
 
     @InjectMocks private ProductService productService;
@@ -90,7 +90,6 @@ public class ProductServiceTest {
         when(productRepository.findByCode(code)).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(Optional.of(product).get());
 
-
         productService.deleteProduct(code);
 
         Optional<Product> deletedProduct = productRepository.findByCode(code);
@@ -105,20 +104,21 @@ public class ProductServiceTest {
         String code = "P1090";
         when(productRepository.findByCode(code)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(ProductNotFoundException.class, () -> {
-            productService.deleteProduct(code);
-        });
+        Assertions.assertThrows(
+                ProductNotFoundException.class,
+                () -> {
+                    productService.deleteProduct(code);
+                });
     }
 
-    private Product createProduct(String code){
-        return
-                new Product(
-                        null,
-                        code,
-                        "The Little Prince",
-                        "Moral allegory and spiritual autobiography, The Little Prince is the most translated book in the French language.",
-                        "https://images.gr-assets.com/books/1367545443l/157993.jpg",
-                        new BigDecimal("16.50"),
-                        BigDecimal.ZERO);
+    private Product createProduct(String code) {
+        return new Product(
+                null,
+                code,
+                "The Little Prince",
+                "Moral allegory and spiritual autobiography, The Little Prince is the most translated book in the French language.",
+                "https://images.gr-assets.com/books/1367545443l/157993.jpg",
+                new BigDecimal("16.50"),
+                BigDecimal.ZERO);
     }
 }
