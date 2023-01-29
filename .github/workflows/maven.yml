@@ -1,6 +1,8 @@
 name: CI Build
 
 on:
+  pull_request:
+    types: [ opened, reopened, review_requested ]
   push:
     branches:
       - '**'
