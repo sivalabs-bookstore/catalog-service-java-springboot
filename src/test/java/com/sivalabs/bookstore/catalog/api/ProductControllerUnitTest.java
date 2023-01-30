@@ -1,21 +1,28 @@
 package com.sivalabs.bookstore.catalog.api;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.sivalabs.bookstore.catalog.common.TestHelper;
 import com.sivalabs.bookstore.catalog.domain.PagedResult;
+import com.sivalabs.bookstore.catalog.domain.ProductNotFoundException;
 import com.sivalabs.bookstore.catalog.domain.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = {ProductController.class})
@@ -60,5 +67,28 @@ public class ProductControllerUnitTest {
 
     private void verifyMockCallForSearchProducts(int times) {
         verify(productService, times(times)).searchProductsByCriteria(anyString(), anyInt());
+    }
+
+    @Test
+    public void testDeleteProduct_whenProductExists_shouldReturnDeletedProduct() throws Exception {
+        String code = "P109";
+        doNothing().when(productService).deleteProduct(code);
+
+        mockMvc.perform(delete("/api/products/" + code).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testDeleteProduct_whenProductDoesNotExist_shouldThrowProductNotFoundException()
+            throws Exception {
+        String code = "P1090";
+        doThrow(new ProductNotFoundException("Product with code:" + code + "not found"))
+                .when(productService)
+                .deleteProduct(code);
+
+        mockMvc.perform(delete("/api/products/" + code).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(
+                        content()
+                                .string(containsString("Product with code:" + code + "not found")));
     }
 }

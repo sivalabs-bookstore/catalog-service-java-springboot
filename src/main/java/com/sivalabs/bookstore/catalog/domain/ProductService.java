@@ -63,4 +63,13 @@ public class ProductService {
         Product savedProduct = productRepository.save(product);
         return productMapper.toModel(savedProduct);
     }
+
+    public void deleteProduct(String code) {
+        Product product =
+                productRepository
+                        .findByCode(code)
+                        .orElseThrow(() -> new ProductNotFoundException(code));
+        product.setDeleted(true);
+        productRepository.save(product);
+    }
 }
