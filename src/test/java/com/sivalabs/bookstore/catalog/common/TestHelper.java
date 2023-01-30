@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 public class TestHelper {
 
     private static final String SEARCH_ENDPOINT = "/api/products/search?query=%s";
+    public static final String CREATE_PRODUCT_ENDPOINT = "/api/products";
 
     public static String buildSearchEndpoint(String queryString) {
         return String.format(SEARCH_ENDPOINT, queryString);
