@@ -12,10 +12,9 @@ import com.sivalabs.bookstore.catalog.domain.CreateProductModel;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.config.JsonPathConfig;
+import java.math.BigDecimal;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
 
 class ProductControllerTest extends AbstractIntegrationTest {
 
@@ -100,13 +99,20 @@ class ProductControllerTest extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewProduct_WhenValidDetailsProvided() {
-        CreateProductModel createProductModel = new CreateProductModel("P200",
-                "A Dog with A Ball",
-                "Awesome read about a dog with super ball",
-                null,
-                new BigDecimal(10).stripTrailingZeros());
+        CreateProductModel createProductModel =
+                new CreateProductModel(
+                        "P200",
+                        "A Dog with A Ball",
+                        "Awesome read about a dog with super ball",
+                        null,
+                        new BigDecimal(10).stripTrailingZeros());
 
-        RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL));
+        RestAssured.config =
+                RestAssured.config()
+                        .jsonConfig(
+                                jsonConfig()
+                                        .numberReturnType(
+                                                JsonPathConfig.NumberReturnType.BIG_DECIMAL));
 
         given().contentType(ContentType.JSON)
                 .body(createProductModel)
@@ -120,16 +126,17 @@ class ProductControllerTest extends AbstractIntegrationTest {
                 .body("description", is(createProductModel.description()))
                 .body("imageUrl", is(createProductModel.imageUrl()))
                 .body("price", is(createProductModel.price()));
-
     }
 
     @Test
     void shouldReturnValidationError_WhenInvalidDetailsProvided() {
-        CreateProductModel missingName = new CreateProductModel("P200",
-                null,
-                "Awesome read about a dog with super ball",
-                null,
-                BigDecimal.TEN);
+        CreateProductModel missingName =
+                new CreateProductModel(
+                        "P200",
+                        null,
+                        "Awesome read about a dog with super ball",
+                        null,
+                        BigDecimal.TEN);
 
         given().contentType(ContentType.JSON)
                 .body(missingName)
@@ -145,21 +152,21 @@ class ProductControllerTest extends AbstractIntegrationTest {
 
     @Test
     void shouldReturnProductExistsError_WhenDuplicateProductCodeSupplied() {
-        CreateProductModel duplicateProduct = new CreateProductModel("P100",
-                "Product 1",
-                "Product 1 desc",
-                null,
-                BigDecimal.TEN);
+        CreateProductModel duplicateProduct =
+                new CreateProductModel("P100", "Product 1", "Product 1 desc", null, BigDecimal.TEN);
 
         given().contentType(ContentType.JSON)
                 .body(duplicateProduct)
                 .when()
                 .post(TestHelper.CREATE_PRODUCT_ENDPOINT)
                 .then()
-                .log().all()
+                .log()
+                .all()
                 .statusCode(400)
                 .body("status", is(400))
                 .body("title", is("Product already exist"))
-                .body("detail", is("Product with code '" + duplicateProduct.code() + "' already exist"));
+                .body(
+                        "detail",
+                        is("Product with code '" + duplicateProduct.code() + "' already exist"));
     }
 }

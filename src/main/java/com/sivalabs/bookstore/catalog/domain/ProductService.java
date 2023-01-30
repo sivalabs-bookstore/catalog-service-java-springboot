@@ -55,8 +55,9 @@ public class ProductService {
     }
 
     public ProductModel createProduct(CreateProductModel createProductModel) {
-        boolean existsProductByCode = productRepository.existsProductByCode(createProductModel.code());
-        if (existsProductByCode){
+        boolean existsProductByCode =
+                productRepository.existsProductByCode(createProductModel.code());
+        if (existsProductByCode) {
             throw new ProductAlreadyExistsException(createProductModel.code());
         }
         Product product = productMapper.fromCreateProductModel(createProductModel);
