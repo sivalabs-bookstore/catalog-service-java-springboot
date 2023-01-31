@@ -22,8 +22,9 @@ public class ProductMapper {
                 product.getPrice().subtract(discount));
     }
 
-    public Product fromCreateProductModel(CreateProductModel createProductModel){
-        return new Product(null,
+    public Product fromCreateProductModel(CreateProductModel createProductModel) {
+        return new Product(
+                null,
                 createProductModel.code(),
                 createProductModel.name(),
                 createProductModel.description(),
